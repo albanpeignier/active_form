@@ -10,7 +10,7 @@ class ActiveForm
   end
 
   def attributes=(attributes, guard_protected_attributes = true)
-    filter_attributes!(attributes) if !attributes.blank? && guard_protected_attributes
+    attributes = filter_attributes(attributes) if !attributes.blank? && guard_protected_attributes
     attributes.each do |key,value|
       send(key.to_s + '=', value)
     end if attributes
@@ -102,16 +102,15 @@ class ActiveForm
     alias save_with_validation raise_not_implemented_error    
   end
   
-  def filter_attributes!(attributes)
+  def filter_attributes(attributes)
     attr_accessible = self.class.read_inheritable_attribute(:attr_accessible)
-    return if attr_accessible.blank?
+    return attributes if attr_accessible.blank?
     
     new_attrs = {}
     attr_accessible.each do |k|
       new_attrs[k] = attributes[k] if attributes.has_key? k
     end
-    #attributes = new_attrs
-    attributes.delete_if { |k,v| new_attrs[k].nil?  }
+    attributes = new_attrs
   end
   
 end
