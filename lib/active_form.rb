@@ -1,11 +1,16 @@
 # Note ".valid?" method  must occur on object for validates_associated
 class ActiveForm
+  
+  # For some reasons Rails is looking for the id attribute.
+  attr_accessor :id
+  
   def initialize(attributes = nil)
     self.attributes = attributes
     yield self if block_given?
   end
 
-  def attributes=(attributes)
+  def attributes=(attributes, guard_protected_attributes = true)
+    filter_attributes!(attributes) if !attributes.blank? && guard_protected_attributes
     attributes.each do |key,value|
       send(key.to_s + '=', value)
     end if attributes
@@ -43,8 +48,15 @@ class ActiveForm
   def new_record?
     true
   end
+  
+  def self.attr_accessible (*attrs)
+    # The Rails version
+    # write_inheritable_attribute("attr_accessible", Set.new(attrs.map(&:to_s)) + (accessible_attributes || []))
+    
+    write_inheritable_attribute(:attr_accessible, attrs)
+  end
 
-protected 
+  protected 
   def raise_not_implemented_error(*params)
     ValidatingModel.raise_not_implemented_error(*params)
   end
@@ -70,13 +82,13 @@ protected
     object
   end
 
-public
+  public
   include ActiveRecord::Validations
   include ActiveRecord::Callbacks
 
-protected 
+  protected 
 
-  # the following methods must be defined after include so that they overide
+  # the following methods must be defined after include so that they override
   # methods previously included
   class << self
     def raise_not_implemented_error(*params)
@@ -89,4 +101,17 @@ protected
     alias validate_on_update raise_not_implemented_error
     alias save_with_validation raise_not_implemented_error    
   end
+  
+  def filter_attributes!(attributes)
+    attr_accessible = self.class.read_inheritable_attribute(:attr_accessible)
+    return if attr_accessible.blank?
+    
+    new_attrs = {}
+    attr_accessible.each do |k|
+      new_attrs[k] = attributes[k] if attributes.has_key? k
+    end
+    #attributes = new_attrs
+    attributes.delete_if { |k,v| new_attrs[k].nil?  }
+  end
+  
 end
