@@ -1,12 +1,40 @@
 # Note ".valid?" method  must occur on object for validates_associated
 class ActiveForm
   
-  # For some reasons Rails is looking for the id attribute.
-  attr_accessor :id
+  class << self
+
+    def self_and_descendents_from_active_record
+      [self]
+    end
+
+    def human_name(options = {})
+      defaults = self_and_descendents_from_active_record.map do |klass|
+        :"#{klass.name.underscore}"
+      end 
+      defaults << self.name.humanize
+      I18n.translate(defaults.shift, {:scope => [:activerecord, :models], :count => 1, :default => defaults}.merge(options))
+    end
+
+    def human_attribute_name(attribute_key_name, options = {})
+      defaults = self_and_descendents_from_active_record.map do |klass|
+        :"#{klass.name.underscore}.#{attribute_key_name}"
+      end
+      defaults << options[:default] if options[:default]
+      defaults.flatten!
+      defaults << attribute_key_name.humanize
+      options[:count] ||= 1
+      I18n.translate(defaults.shift, options.merge(:default => defaults, :scope => [:activerecord, :attributes]))
+    end
+
+  end
   
   def initialize(attributes = nil)
     self.attributes = attributes
     yield self if block_given?
+  end
+
+  def id
+    self.object_id
   end
 
   def attributes=(attributes, guard_protected_attributes = true)
@@ -28,6 +56,10 @@ class ActiveForm
 
   def []=(key, value)
     instance_variable_set("@#{key}", value)
+  end
+
+  def new_record?
+    true
   end
 
   def method_missing( method_id, *args )
@@ -61,8 +93,8 @@ class ActiveForm
     ValidatingModel.raise_not_implemented_error(*params)
   end
 
-  def self.human_attribute_name(attribute_key_name)
-    attribute_key_name.humanize
+  def logger
+    RAILS_DEFAULT_LOGGER
   end
 
   # these methods must be defined before Validations include
