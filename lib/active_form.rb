@@ -80,6 +80,10 @@ class ActiveForm
   def new_record?
     true
   end
+
+  def update_attribute(attribute, value)
+    self[attribute] = value
+  end
   
   def self.attr_accessible (*attrs)
     # The Rails version
@@ -99,7 +103,6 @@ class ActiveForm
 
   # these methods must be defined before Validations include
   alias save raise_not_implemented_error
-  alias update_attribute raise_not_implemented_error
   alias save! raise_not_implemented_error
   
   # The following must be defined prior to Callbacks include
