@@ -34,7 +34,7 @@ class ActiveForm
   end
 
   def id
-    self.object_id
+    nil
   end
 
   def attributes=(attributes, guard_protected_attributes = true)
