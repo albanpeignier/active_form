@@ -50,7 +50,7 @@ module ActiveForm
 
       multi_parameter_attributes = []
       attributes.each do |key,value|
-        if key.include?("(")
+        if key.to_s.include?("(")
           multi_parameter_attributes << [ key, value ]
         else
           send(key.to_s + '=', value)
