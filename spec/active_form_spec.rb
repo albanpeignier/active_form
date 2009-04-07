@@ -66,5 +66,9 @@ describe ActiveForm do
     @active_form = WithAfterInitialize.new
     @active_form.after_initialize_called.should be_true
   end
+
+  it "should be always a new record" do
+    @active_form.should be_new_record
+  end
   
 end
