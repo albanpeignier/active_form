@@ -34,6 +34,11 @@ module ActiveForm
         I18n.translate(defaults.shift, options.merge(:default => defaults, :scope => [:activerecord, :attributes]))
       end
 
+      def attr_alias(new, old)
+        alias_method new, old
+        alias_method :"#{new}=", :"#{old}="
+      end
+
     end
     
     def initialize(attributes = nil)

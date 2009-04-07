@@ -80,5 +80,30 @@ describe ActiveForm do
     end
 
   end
+
+  describe "attribute alias" do
+
+
+    class WithAttrAlias < ActiveForm::Base
+      attr_accessor :original
+      attr_alias :alias, :original
+    end
+
+    before(:each) do
+      @active_form = WithAttrAlias.new 
+    end
+
+    it "should return same value than orginal attribute" do
+      @active_form.original = 'dummy'
+      @active_form.alias.should == @active_form.original
+    end
+
+    it "should return change the same value than orginal attribute" do
+      @active_form.alias = "dummy"
+      @active_form.original.should == @active_form.alias
+    end
+
+  end
+
   
 end
