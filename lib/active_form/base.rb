@@ -76,10 +76,6 @@ module ActiveForm
       instance_variable_set("@#{key}", value)
     end
 
-    def new_record?
-      true
-    end
-
     def method_missing( method_id, *args )
       if md = /_before_type_cast$/.match(method_id.to_s)
         attr_name = md.pre_match
