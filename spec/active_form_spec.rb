@@ -70,5 +70,15 @@ describe ActiveForm do
   it "should be always a new record" do
     @active_form.should be_new_record
   end
+
+  describe "update_attributes" do
+    
+    it "should set specified attributes" do
+      attributes = { :dummy => true }
+      @active_form.should_receive(:attributes=).with(attributes)
+      @active_form.update_attributes(attributes)
+    end
+
+  end
   
 end

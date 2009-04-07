@@ -98,6 +98,10 @@ module ActiveForm
     def update_attribute(attribute, value)
       self[attribute] = value
     end
+
+    def update_attributes(attributes)
+      self.attributes = attributes
+    end
     
     def self.attr_accessible (*attrs)
       # The Rails version
