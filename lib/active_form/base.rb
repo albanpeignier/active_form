@@ -39,6 +39,8 @@ module ActiveForm
     def initialize(attributes = nil)
       self.attributes = attributes
       yield self if block_given?
+
+      send(:after_initialize) if respond_to?(:after_initialize, true)
     end
 
     def id

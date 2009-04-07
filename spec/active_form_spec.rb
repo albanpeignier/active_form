@@ -1,11 +1,5 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
-class TestClass < ActiveForm::Base
-end
-
-class TestSubClass < TestClass
-end
-
 describe ActiveForm do
 
   before(:each) do
@@ -19,6 +13,12 @@ describe ActiveForm do
   end
 
   describe "self_and_descendents_from_active_record" do
+
+    class TestClass < ActiveForm::Base
+    end
+
+    class TestSubClass < TestClass
+    end
 
     it "should return class if simply inherited from ActiveForm" do
       TestClass.self_and_descendents_from_active_record.should == [ TestClass ]
@@ -52,6 +52,19 @@ describe ActiveForm do
       @active_form.created_at.should == Time.local(2009, 3, 4, 19, 29)
     end
 
+  end
+
+  it "should invoke after_initialize method (if exists) when created" do
+    class WithAfterInitialize < ActiveForm::Base
+      attr_accessor :after_initialize_called
+      private
+      def after_initialize
+        self.after_initialize_called = true
+      end
+    end
+
+    @active_form = WithAfterInitialize.new
+    @active_form.after_initialize_called.should be_true
   end
   
 end
