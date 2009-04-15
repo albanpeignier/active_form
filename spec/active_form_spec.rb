@@ -105,5 +105,25 @@ describe ActiveForm do
 
   end
 
+  describe "attribute_names" do
+    
+    class WithFewAttributes < ActiveForm::Base
+      attr_accessor :first, :another
+      attr_alias :alias, :first
+    end
+
+    before(:each) do
+      @active_form_class = WithFewAttributes
+    end
+
+    it "should return names of attributes defined with attr_accessor" do
+      @active_form_class.attribute_names.should == [ "first", "another" ]
+    end
+
+    it "should ignore attribute alias" do
+      @active_form_class.attribute_names.should_not include("alias")
+    end
+
+  end
   
 end

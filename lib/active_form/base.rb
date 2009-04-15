@@ -6,6 +6,31 @@ module ActiveForm
 
     class << self
 
+      def attr_accessor_with_name_collect(*attributes)
+        add_attribute_names *attributes
+        attr_accessor_without_name_collect *attributes
+      end
+      alias_method_chain :attr_accessor, :name_collect
+
+      def attribute_names
+        read_inheritable_attribute(:attribute_names) or []
+      end
+
+      def add_attribute_names(*attributes)
+        new_attribute_names = 
+          (attribute_names + attributes.collect(&:to_s)).uniq
+        write_inheritable_attribute(:attribute_names, new_attribute_names)
+      end
+
+      def attr_alias(new, old)
+        alias_method new, old
+        alias_method :"#{new}=", :"#{old}="
+      end
+
+    end
+
+    class << self
+
       def self_and_descendents_from_active_record
         klass = self
         classes = [klass]
@@ -34,12 +59,11 @@ module ActiveForm
         I18n.translate(defaults.shift, options.merge(:default => defaults, :scope => [:activerecord, :attributes]))
       end
 
-      def attr_alias(new, old)
-        alias_method new, old
-        alias_method :"#{new}=", :"#{old}="
-      end
-
     end
+
+
+
+
     
     def initialize(attributes = nil)
       self.attributes = attributes
