@@ -31,7 +31,7 @@ module ActiveForm
 
     class << self
 
-      def self_and_descendents_from_active_record
+      def self_and_descendants_from_active_record
         klass = self
         classes = [klass]
         while klass.superclass != ActiveForm::Base
@@ -39,6 +39,8 @@ module ActiveForm
         end
         classes
       end
+
+      alias_method :self_and_descendents_from_active_record, :self_and_descendants_from_active_record
 
       def human_name(options = {})
         defaults = self_and_descendents_from_active_record.map do |klass|
@@ -98,11 +100,19 @@ module ActiveForm
     end
 
     def [](key)
-      instance_variable_get("@#{key}")
+      unless respond_to?("#{key}")
+        instance_variable_get("@#{key}")
+      else
+        send(key)
+      end
     end
 
     def []=(key, value)
-      instance_variable_set("@#{key}", value)
+      unless respond_to?("#{key}=")
+        instance_variable_set("@#{key}", value)
+      else
+        send("#{key}=", value)
+      end
     end
 
     def method_missing( method_id, *args )
