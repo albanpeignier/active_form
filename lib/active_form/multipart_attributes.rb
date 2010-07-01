@@ -21,6 +21,8 @@ module ActiveForm
     def class_for_attribute(name)
       if name =~ /_at$/
         Time
+      elsif name =~ /_on$/
+        Date
       end
     end
 
